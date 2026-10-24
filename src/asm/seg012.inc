@@ -575,7 +575,8 @@ seg012 segment byte public use16 'STUNTSC'
         kb_reg_callback = kb_reg_callback_asm_
         nopsub_304AF = nopsub_304AF_asm_
         nopsub_304B6 = nopsub_304B6_asm_
-        kb_get_char = kb_get_char_asm_
+        ; kb_get_char is ported (C wrapper in replayboot.c).
+        extrn kb_get_char:proc
         get_kb_or_joy_flags = get_kb_or_joy_flags_asm_
         nopsub_305C8 = nopsub_305C8_asm_
         get_joy_flags = get_joy_flags_asm_

@@ -163,6 +163,13 @@ bogus **segment-0** pointer and aborts the game here. Notes on the fix:
   derives an exact heading via `atan2(-vz, vx)` (finer than any fixed set of
   sectors); before the car first moves they carry the start heading
   `track_angle` (0=N, 0x100=E, 0x200=S, 0x300=W).
+- `/extmus` — keep the in-game music off while external audio plays. Port
+  `kb_get_char` (alias in `seg012.inc`/`.def`, remove from
+  `aliases-port.lnk`); on the first poll after a cue loads, write `0` to
+  `audioflag2` (the Options → Music Off flag). This skips only the music
+  sequencer in the timer handler; SFX and the audio driver stay untouched.
+  Do **not** call `audio_disable_flag2`/`sub_372F4` or port
+  `file_load_audiores`: those break SFX and crash on collisions.
 
 `run_game` is also routed through C to auto-save every finished race
 (`lastrep.rpl` + `lastrep.rp2` — see [RP2_FILE_FORMAT.md](RP2_FILE_FORMAT.md)).

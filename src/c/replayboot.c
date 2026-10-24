@@ -20,6 +20,11 @@ extern void cdecl update_gamestate_asm_(void);
 extern int cdecl file_write_replay_asm_(const char* filename);
 extern int16_t cdecl file_load_replay(const char* dir, const char* name);
 extern void cdecl file_write_fatal_asm_(const char* filename, void far* src, unsigned long len);
+// Input poll (seg012). /extmus clears the music-enable flag here, exactly like
+// the in-game Options -> Music Off state, but without touching the driver.
+extern uint16_t cdecl kb_get_char_asm_(void);
+#pragma aux audioflag2 "*";
+extern uint8_t audioflag2;
 // Memory manager (seg012): mmgr_alloc_resbytes is declared in externs.h.
 extern void far* cdecl mmgr_free_asm_(void far* data);
 // Shape loading + palette (resolved via aliases-port.lnk).
@@ -98,6 +103,8 @@ static char boot_replay_name[9];
 static char boot_timing_txt[96];
 // /pos: publish the car's current map square to POS.TXT so a page can show it.
 static int boot_pos = 0;
+static int boot_extmus = 0;
+static uint8_t boot_music_off = 0;
 static int boot_pos_have = 0;
 static int boot_pos_x = -1;
 static int boot_pos_y = -1;
@@ -173,6 +180,15 @@ static void boot_parse_cmdline(void)
                 (tok[1] == 'o' || tok[1] == 'O') &&
                 (tok[2] == 's' || tok[2] == 'S')) {
                 boot_pos = 1; // /pos: publish the car's map square to POS.TXT
+                continue;
+            }
+            if ((n == 6) && (tok[0] == 'e' || tok[0] == 'E') &&
+                (tok[1] == 'x' || tok[1] == 'X') &&
+                (tok[2] == 't' || tok[2] == 'T') &&
+                (tok[3] == 'm' || tok[3] == 'M') &&
+                (tok[4] == 'u' || tok[4] == 'U') &&
+                (tok[5] == 's' || tok[5] == 'S')) {
+                boot_extmus = 1; // /extmus: keep in-game music off for external audio
                 continue;
             }
             if ((n == 9) && (tok[0] == 's' || tok[0] == 'S') &&
@@ -899,6 +915,20 @@ static void boot_publish_pos(void)
     n += boot_udec((unsigned)vz, p + n);
     p[n++] = '\n';
     file_write_fatal_asm_(boot_pos_name, (void far*)boot_pos_txt, (unsigned long)n);
+}
+
+// Ported kb_get_char (seg012): the first poll after a music cue loads clears
+// audioflag2, the same flag the Options -> Music Off item toggles. This only
+// skips the music sequencer in the timer handler; SFX decoding is untouched.
+uint16_t cdecl kb_get_char(void)
+{
+    uint16_t v = kb_get_char_asm_();
+
+    if (boot_extmus && !boot_music_off) {
+        audioflag2 = 0;
+        boot_music_off = 1;
+    }
+    return v;
 }
 
 // update_gamestate runs once per simulation frame. Wrapping it (the documented
