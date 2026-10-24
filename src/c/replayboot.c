@@ -25,6 +25,7 @@ extern void cdecl file_write_fatal_asm_(const char* filename, void far* src, uns
 extern uint16_t cdecl kb_get_char_asm_(void);
 // Music on/off, exactly what the Options -> Music Off item toggles (seg027).
 extern void cdecl audio_disable_flag2_asm_(void);
+extern void cdecl sub_372F4_asm_(void);
 #pragma aux audioflag2 "*";
 extern uint8_t audioflag2;
 // Memory manager (seg012): mmgr_alloc_resbytes is declared in externs.h.
@@ -971,6 +972,7 @@ uint16_t cdecl kb_get_char(void)
         // SFX. Do it from the input poll, not right after file_load_audiores
         // (that leaves the driver half-initialised and crashes on SFX).
         audio_disable_flag2_asm_();
+        sub_372F4_asm_();
         if (audioflag2 == 0) {
             boot_music_off = 1;
         }
