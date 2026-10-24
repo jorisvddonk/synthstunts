@@ -239,6 +239,8 @@ audio (see the `dseg` section).
 
 - `make_synt.py build|menu|opponents` generates `SYNT.PVS`, `SYNTM.PVS` and
   `SYNTO.PVS`.
+- `bake_horizon.py` rebuilds `SYNT.PVS` from the committed
+  `horizon.png` (1024×48; 320/192/320/192 slices bottom-aligned).
 - `bake_opponent_text.py` rebuilds `SYN1.RES`..`SYN6.RES` from
   `opponents.txt` and the `OPP*.BIN` templates (`/dumpopp`).
 - `bake_menu.py` / `bake_opponents.py` rebuild the resource from the committed
@@ -247,8 +249,8 @@ audio (see the `dseg` section).
 - `/dumppal`, `/dumpmenu`, `/dumpdosel` and `/vid` are dev helpers; `/vid`
   also dumps the composed main menu to `MENUVID.BIN`.
 - The generated `.PVS`/`.RES` files are game data and are not committed to
-  restunts2; the editable PNGs (`menu.png`, `opp0..opp6.png`),
-  `opponents.txt` and `synthwave.pal` are.
+  restunts2; the editable PNGs (`horizon.png`, `menu.png`,
+  `opp0..opp6.png`), `opponents.txt` and `synthwave.pal` are.
 
 ## Web demo (js-dos)
 

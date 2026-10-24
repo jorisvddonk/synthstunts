@@ -129,6 +129,14 @@ python3 src/tools/synthwave/make_synt.py menu \
     --palette PALETTE.BIN --base MENU.BIN --out SYNTM.PVS --preview menu.png
 ```
 
+The editable horizon source is `src/tools/synthwave/horizon.png` (1024×48,
+indexed; the four slices are bottom-aligned at x = 0/320/512/832). Bake it with:
+
+```sh
+uv run src/tools/synthwave/bake_horizon.py \
+    src/tools/synthwave/horizon.png -o SYNT.PVS
+```
+
 The editable menu source is committed at
 `src/tools/synthwave/menu.png` (320×200, indexed; `synthwave.pal` is its
 palette). Edit the PNG and bake it straight back into the resource file with
