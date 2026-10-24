@@ -120,6 +120,20 @@ python3 src/tools/synthwave/make_synt.py menu \
     --palette PALETTE.BIN --base MENU.BIN --out SYNTM.PVS --preview menu.png
 ```
 
+The editable menu source is committed at
+`src/tools/synthwave/menu.png` (320×200, indexed; `synthwave.pal` is its
+palette). Edit the PNG and bake it straight back into the resource file with
+`uv` (Pillow is installed from the script's PEP 723 metadata):
+
+```sh
+uv run src/tools/synthwave/bake_menu.py src/tools/synthwave/menu.png \
+    -o SYNTM.PVS
+```
+
+RGB edits are quantised to `synthwave.pal`; indexed edits keep their exact
+indices. Copy the resulting `SYNTM.PVS` next to `REST2.EXE` (or into the web
+bundle).
+
 `--raw` writes the uncompressed container instead (`.DAT`, loaded through the
 loader's raw fallback). Low-saturation colours (asphalt, UI greys) are mapped
 onto a blue/violet ramp so the road becomes neon; `0x74` (sky), `0x6C` (ground)
