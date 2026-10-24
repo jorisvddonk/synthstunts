@@ -168,12 +168,11 @@ bogus **segment-0** pointer and aborts the game here. Notes on the fix:
   → TITL, `run_menu` → SLCT, `run_game` → NONE, and VICT/OVER after the race)
   and flush it from a ported `kb_get_char` (alias in `seg012.inc`/`.def`, remove
   from `aliases-port.lnk`). `input_checking` polls `kb_get_char` every intro,
-  menu and result frame, so the write happens once the scene is stable. On the
-  first poll, also call `audio_disable_flag2` followed by `sub_372F4`, exactly
-  like the Options → Music Off item does: silence the in-game music, then reset
-  the voices so SFX keep working. Do not call the disable right after
-  `file_load_audiores`: the driver is only half-initialised there and the first
-  SFX crashes. Do not port `file_load_audiores` itself.
+  menu and result frame, so the write happens once the scene is stable. Do
+  **not** touch the game's audio state here: `audio_disable_flag2` (even with
+  `sub_372F4`) breaks SFX and crashes on the first collision, and porting
+  `file_load_audiores` breaks SFX initialisation. The host mutes the emulator
+  while an external cue is playing instead.
 
 `run_game` is also routed through C to auto-save every finished race
 (`lastrep.rpl` + `lastrep.rp2` — see [RP2_FILE_FORMAT.md](RP2_FILE_FORMAT.md)).
