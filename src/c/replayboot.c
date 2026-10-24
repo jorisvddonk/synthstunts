@@ -802,16 +802,7 @@ void cdecl run_game(void)
 {
     uint16_t k;
 
-    boot_set_mus("NONE");
     run_game_asm_();
-
-    if (boot_extmus && !boot_info) {
-        int vict = gameconfig.game_opponenttype != 0
-            && state.field_144 != 0
-            && state.game_total_finish != 0
-            && (uint16_t)state.field_144 >= (uint16_t)state.game_total_finish;
-        boot_set_mus(vict ? "VICT" : "OVER");
-    }
 
     if (boot_info) {
         // Verification run: report only, don't overwrite the autosave.
