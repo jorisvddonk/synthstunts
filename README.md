@@ -1,12 +1,21 @@
 <div align="center">
 
-   ![restunts](assets/logo.svg)
+   <h1>SynthStunts</h1>
+
+   ![SynthStunts](assets/logo.svg)
 
    [![Build](https://img.shields.io/github/check-runs/dstien/restunts2/main?nameFilter=Build&label=Build)](https://github.com/dstien/restunts2/actions)
    [![Tests](https://img.shields.io/github/check-runs/dstien/restunts2/main?nameFilter=Test&label=Tests)](https://github.com/dstien/restunts2/actions)
 </div>
 
-An attempt to refurbish the [Stunts reverse engineering project](https://github.com/4d-stunts/restunts) with free, contemporary tooling and measures to improve correctness of the ported code.
+**SynthStunts** is a fork of [ReStunts](https://github.com/dstien/restunts2) — the
+modern, reverse-engineered Stunts port — with a synthwave presentation layer:
+an alternate palette, horizon, main menu, opponent portraits/descriptions and a
+rebranded options screen. The simulation and game data stay compatible, and the
+executables keep their upstream names (`restunts.exe`, `restunto.exe`, ...).
+
+ReStunts refurbishes the [Stunts reverse engineering project](https://github.com/4d-stunts/restunts)
+with free, contemporary tooling and measures to improve correctness of the ported code.
 
 ## Progress
 
@@ -37,6 +46,8 @@ This produces six 16-bit real-mode DOS executables in `build/platform/dos16`:
 | `repldumo.exe` | Replay dump tool | Original core     |
 | `test.exe`     | Unit tests       | Ported + original |
 | `testo.exe`    | Unit tests       | Original core     |
+
+The executable names are intentionally unchanged from ReStunts.
 
 The versions with original code are used to verify the behaviour of the ported code. The `repldump` tool writes the game state for every frame in a given replay to a binary file so that the simulation of an entire race can be verified programmatically.
 
