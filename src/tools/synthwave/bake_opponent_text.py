@@ -66,27 +66,37 @@ def cstr(blob):
 
 
 def read_text(path):
-    """Parse '# oppN' sections; returns {n: (initials, [lines])}."""
+    """Parse '# oppN' sections; returns {n: (initials, lines, dialogue)}."""
     sections = {}
     cur = None
     lines = []
     initials = ""
+    dialogue = {}
+    mode = "desc"
     for raw in open(path, encoding="latin1"):
         line = raw.rstrip("\r\n")
         s = line.strip()
         if s.lower().startswith("# opp"):
             if cur is not None:
-                sections[cur] = (initials, lines)
+                sections[cur] = (initials, lines, dialogue)
             cur = int("".join(c for c in s.split()[-1] if c.isdigit()))
             lines = []
             initials = ""
+            dialogue = {}
+            mode = "desc"
         elif cur is not None:
-            if s.lower().startswith("initials:"):
-                initials = s.split(":", 1)[1].strip()
-            else:
-                lines.append(line)
+            if s.lower() == "[dialogue]":
+                mode = "dlg"
+            elif mode == "desc":
+                if s.lower().startswith("initials:"):
+                    initials = s.split(":", 1)[1].strip()
+                else:
+                    lines.append(line)
+            elif ":" in line:
+                key, value = line.split(":", 1)
+                dialogue[key.strip()] = value.lstrip()
     if cur is not None:
-        sections[cur] = (initials, lines)
+        sections[cur] = (initials, lines, dialogue)
     return sections
 
 
@@ -104,6 +114,11 @@ def extract(args):
         out.append(f"# opp{n}")
         out.append(f"initials: {initials}")
         out.append(desc)
+        out.append("[dialogue]")
+        for name, blob in res:
+            key = name.decode("latin1")
+            if key[:2] in ("ed", "ev"):
+                out.append(f"{key}: {cstr(blob).decode('latin1')}")
     open(args.out, "w", encoding="latin1").write("\n".join(out) + "\n")
     print(f"wrote {args.out}")
 
@@ -120,10 +135,14 @@ def bake(args):
             raise SystemExit(f"{path}: missing des/nam resource")
         if n not in sections:
             raise SystemExit(f"{args.text}: no '# opp{n}' section")
-        initials, lines = sections[n]
+        initials, lines, dialogue = sections[n]
         initials = initials[:2]
         res[ni][1] = initials.encode("latin1") + b"\0"
         res[di][1] = "]".join(lines).encode("latin1") + b"\0"
+        for i, (name, _blob) in enumerate(res):
+            key = name.decode("latin1")
+            if key in dialogue:
+                res[i][1] = dialogue[key].encode("latin1") + b"\0"
         container = m.build_container(
             [(name.decode("latin1"), blob) for name, blob in res])
         out = os.path.join(args.out_dir, f"SYN{n}.RES")

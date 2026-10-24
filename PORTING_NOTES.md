@@ -205,6 +205,10 @@ audio (see the `dseg` section).
   string in `nam` (`g_opponent_initials` is a word). In OPP3..OPP6 `des`
   points 3 bytes into `nam`; the bake script rebuilds the container so they are
   independent.
+- The `ed*`/`ev*` resources are the individual win/lose dialogue lines
+  (`ed1a`..`ed4a`, `ev1a`..`ev3c`); each is a single NUL-terminated string and
+  the dialog code wraps it. `opponents.txt` has a `[dialogue]` block per
+  opponent (`key: text`).
 - The game writes the DAC exactly once (`load_palandcursor`), so one
   `video_set_palette(0, 256, pal)` at init persists for the whole session
   (menus, previews, races).

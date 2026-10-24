@@ -153,8 +153,8 @@ uv run src/tools/synthwave/bake_opponents.py \
 
 Opponent descriptions/initials come from `SYN1.RES`..`SYN6.RES` in synthwave
 mode (`aOpp1`'s prefix is rewritten from `opp` to `syn`). Each file carries the
-original AI data (`path`/`sped`/`winn` and the win/lose dialogue) with only the
-menu description (`des`) and the two-letter initials (`nam`) replaced. The
+original AI data (`path`/`sped`/`winn`) with the menu description (`des`), the
+two-letter initials (`nam`) and the `ed*`/`ev*` win/lose dialogue replaced. The
 editable source is `src/tools/synthwave/opponents.txt`:
 
 ```sh

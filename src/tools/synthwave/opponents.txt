@@ -15,6 +15,28 @@ Background: Grew up chasing
     hairpins. Her paint job is
     technically a traffic
     hazard.
+[dialogue]
+ed1a: Not again! My neon fades when I lose.
+ed1b: Don't feel bad for me... this happens after midnight.
+ed1c: Fine, you're faster than my synth solo.
+ed2a: Must've been the tape deck dragging me down.
+ed2b: That car had no bass. I couldn't feel the road.
+ed2c: You shot past me like a laser - nice driving!
+ed2d: You went by so fast my eyeliner smeared.
+ed3a: I bet you can't do that twice in a row.
+ed3b: Race someone else; they'd be more challenging.
+ed3c: I'd beat you in any car with a better cassette.
+ed4a: Oops... sorry. That was probably my fault. Let's rewind and try again.
+ev1a: I won! The neon is mine tonight!
+ev1b: Yes! Yes! This is totally tubular!
+ev1c: You should practice -- I never win this much.
+ev2a: You did kind of go up in a fireball back there.
+ev2b: Hey, that was a spectacular crash you had.
+ev2c: You got a license for that thing?
+ev2d: Friendly reminder: the gas pedal is on the right.
+ev3a: Let's race again -- I like this winning stuff.
+ev3b: One more time -- I bet I can make it two in a row.
+ev3c: How about a bet? Loser buys the synthwave tapes.
 # opp2
 initials: CM
 Chrome Mirage
@@ -31,6 +53,28 @@ Background: A former arcade
     His chrome finish confuses
     the photographers and the
     opposition alike.
+[dialogue]
+ed1a: So, the chrome has dulled once.
+ed1b: Ach! To lose to such a young one... it embarasses me!
+ed1c: I admit defeat at your hands.
+ed2a: It is because this car is so unfamiliar to me.
+ed2b: On any neon boulevard, the outcome would differ.
+ed2c: It is these hills; they unnerve my reflection.
+ed2d: You have driven well; I will acknowledge it.
+ed3a: Provide me a worthwhile car and I will show you driving.
+ed3b: Experience will show - I challenge you again!
+ed3c: Nine of ten times I will defeat you - race me again!
+ed4a: Young pup! Watch where you drive! Learn some etiquette of the boulevard.
+ev1a: You young pipsqueak, you thought you could beat chrome?
+ev1b: Ahh, the foolishness of youth... it always makes me smile.
+ev1c: You should know better than to pit yourself against a champion!
+ev2a: You will fare better next time if you keep your car on the road.
+ev2b: Yet I do not understand why you chose to smash your car.
+ev2c: You must learn to handle your car before you compete.
+ev2d: You cannot beat someone of my vast experience.
+ev3a: When you have driven the hours I have, then challenge me.
+ev3b: Choose another vehicle; I will teach another lesson.
+ev3c: Have you met Neon Vixen? Perhaps you two can play elsewhere.
 # opp3
 initials: MG
 Magenta Ghost
@@ -47,6 +91,28 @@ Background: Appears in the
     of an engine management
     system. Nobody has seen the
     driver step out of the car.
+[dialogue]
+ed1a: Big deal. You won. The ghost remembers.
+ed1b: Okay, you won that round.
+ed1c: You beat me fair and square.
+ed2a: I wasn't really trying.
+ed2b: The track was practically a drag strip.
+ed2c: Let me drive the spectral machine next time.
+ed2d: I guess you did run a pretty good race.
+ed3a: I could beat you anytime I wanted to.
+ed3b: Put a few more curves in the track and see.
+ed3c: You couldn't do it again, though.
+ed4a: Nice move, weasel. Next time pay attention.
+ev1a: I knew I could haunt you.
+ev1b: You never stood a chance.
+ev1c: Keep dreamin', pal.
+ev2a: You gotta actually finish before you can win.
+ev2b: You got a license?
+ev2c: Nice race... Ha!
+ev2d: Leave the driving to the professionals, okay?
+ev3a: Get a clue.
+ev3b: You want to be embarassed again?
+ev3c: Go play with the Vaporwave Vandal.
 # opp4
 initials: LD
 Laser Dancer
@@ -64,6 +130,28 @@ Background: Trained as a stage
     corner as a cue and every
     lap as a set. The tyre smoke
     is part of the show.
+[dialogue]
+ed1a: You're so MEAN! I wanted to win!
+ed1b: What, like, I'm supposed to congratulate you now? For sure.
+ed1c: You think you're a better driver just because you won?
+ed2a: Why don't you let me drive something that goes FAST?
+ed2b: This is a stupid course anyway... why can't we just go FAST?
+ed2c: I mean, you just got lucky, you know?
+ed2d: There are too many, you know, stupid turns in that course.
+ed3a: If we race, like, for REAL this time, I'll waste you.
+ed3b: If you dare to race me again, you'll be, like, toast.
+ed3c: You think you're so special now, why not, like, prove it again?
+ed4a: Wow that was dangerous! Looks like we both wasted our rides.
+ev1a: Oh, I won! I won!
+ev1b: Oh, my God! Like, I won! Totally over!
+ev1c: Why, that was me that was first, wasn't it? Rad!
+ev2a: Your crash was, like, spectacular! No, for sure, it was!
+ev2b: You didn't have to wipe out for me, you know what I'm saying?
+ev2c: I guess the straightaways were, like, too much for you, right?
+ev2d: Thanks for letting me drive the best car.
+ev3a: I won't be so, you know, rough on you if we race again, okay?
+ev3b: Think you could, like, compete if we raced again?
+ev3c: You're nice and everything, but... have you raced the Ghost?
 # opp5
 initials: VV
 Vaporwave Vandal
@@ -81,6 +169,28 @@ Background: Raced a
     speed and somehow still
     arrives first. The aesthetic
     is the point.
+[dialogue]
+ed1a: You monster! How dare you!
+ed1b: You think you have won, but I truly despise you now.
+ed1c: What do you think you are doing? Winning is not worth my anger.
+ed2a: I should use my influence to have you removed from this course.
+ed2b: Don't think you may ever speak to me again!
+ed2c: I should beat you every time! EVERY time!
+ed2d: Why don't you take your keys and find another track?
+ed3a: I don't ever want to appear on the same track with you again!
+ed3b: If you EVER race me again, you should know better.
+ed3c: If you plan on such a performance again, race someone else.
+ed4a: I'm sorry I smashed your car; sometimes I just can't help it!
+ev1a: Oh, I so love it when I win!
+ev1b: You let me win!
+ev1c: Victory is so exhilarating!
+ev2a: But you didn't have to destroy your car to get out of my way!
+ev2b: Are you okay? The crash looked like it must have hurt!
+ev2c: Darling, you are SO amusing when you race.
+ev2d: I saw you getting out of my way.
+ev3a: Oh, let's DO race again!
+ev3b: Next time, you really MUST try!
+ev3c: If you can't keep up, perhaps you should race Neon Vixen.
 # opp6
 initials: TS
 Turbo Spectre
@@ -97,3 +207,25 @@ Background: The old ghost of
     nobody can find in the record
     books. Speaks only in
     reverb.
+[dialogue]
+ed1a: What a fluke! I can't believe it! This pinhead beat me!
+ed1b: Now you've really ticked me off! You'll pay!
+ed1c: I'm still the champion - this loss means nothing.
+ed2a: Give me a real car instead of this piece of junk!
+ed2b: You couldn't beat me again even with a head start.
+ed2c: What, you have a rabbit's foot in your pocket?
+ed2d: Savour this moment, pal; you'll never win again.
+ed3a: Race me again, if you have the guts; I doubt it.
+ed3b: You wimp - you wouldn't dare to race me again.
+ed3c: You can race me again, or watch your step around here.
+ed4a: This is my road! When I'm on it, stay out of MY way! Got it?
+ev1a: Just like I thought... another dweeb.
+ev1b: When am I gonna race someone who knows how to drive?
+ev1c: You... are... a... LOSER!
+ev2a: What do you think, I'm like the other cheeseheads around here?
+ev2b: You couldn't beat me if you practiced for 100 hours.
+ev2c: These are expensive cars; don't pretend you can drive one.
+ev2d: Why are you wasting my time?
+ev3a: Come back when you've learned to drive.
+ev3b: Don't bother me anymore... I don't have time for your kind.
+ev3c: Race someone in your own league... like the Ghost.
