@@ -438,12 +438,21 @@ void cdecl init_main(int argc, char** argv)
     boot_parse_cmdline();
 
     if (boot_synthwave) {
+        void far* c;
         boot_set_scenery_names();
         boot_set_menu_name();
         boot_set_opponent_name();
         boot_set_opponent_res_prefix();
-        if (boot_find_pal(file_load_shape2d_nofatal_thunk("synt.pvs"), pal)) {
+        c = file_load_shape2d_nofatal_thunk("synt.pvs");
+        if (boot_find_pal(c, pal)) {
             video_set_palette(0, 256, pal);
+        }
+        // Don't keep SYNT.PVS resident for the whole session: the skybox
+        // loader reads it from disk when a race needs it. Holding it here
+        // eats a chunk of the small DOS heap and makes the bigger custom-car
+        // resources fail to load.
+        if (c != 0) {
+            mmgr_free_asm_(c);
         }
     }
 

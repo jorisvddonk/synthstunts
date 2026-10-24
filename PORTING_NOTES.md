@@ -192,7 +192,9 @@ audio (see the `dseg` section).
   before calling it.
 - `video_set_palette()` reads the DAC table **relative to DS**. Use a DGROUP
   buffer; the wrapper uses a 768-byte stack buffer, exactly like the original
-  `load_palandcursor`.
+  `load_palandcursor`. Free the temporary `SYNT.PVS` container afterwards:
+  keeping it resident starves the DOS heap, and the large custom-car
+  `STDA*.VSH` resources then fail to load (e.g. OXIA/STRA with `/synthwave`).
 - Filenames are patched **in place** so dseg does not grow: `g_sceneries`
   (5×9 bytes) → `"synt.pvs"` (≤8 chars), `aSdmsel` → `"syntm"`, `aSdosel` →
   `"synto"`, and `aOpp1`'s prefix `"opp"` → `"syn"`.
