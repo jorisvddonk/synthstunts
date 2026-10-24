@@ -5,9 +5,11 @@
 # ///
 """Bake an edited horizon panorama back into SYNT.PVS.
 
-The horizon is one 1024x48 image split into four bottom-aligned slices
-(scen 320x48, sce2 192x32, sce3 320x44, sce4 192x24) — the geometry the
-skybox blitter expects. The palette resource (!pal) comes from
+The horizon is one 1024x48 image split into four 48-px-tall slices
+(scen 320, sce2 192, sce3 320, sce4 192, at x=0/320/512/832) — the
+geometry the skybox blitter expects. All slices are the same height so
+the flat sky fill never shows above them (that fill was the "cut" seen
+with shorter slices). The palette resource (!pal) comes from
 synthwave.pal, so editing the PNG only changes the art.
 
     uv run src/tools/synthwave/bake_horizon.py horizon.png -o SYNT.PVS
@@ -27,9 +29,9 @@ import make_synt as m  # noqa: E402
 W, H = 1024, 48
 SLICES = [
     ("scen", 320, 48, 0),
-    ("sce2", 192, 32, 320),
-    ("sce3", 320, 44, 512),
-    ("sce4", 192, 24, 832),
+    ("sce2", 192, 48, 320),
+    ("sce3", 320, 48, 512),
+    ("sce4", 192, 48, 832),
 ]
 
 

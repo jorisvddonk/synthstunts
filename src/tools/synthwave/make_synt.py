@@ -65,9 +65,9 @@ IDX_WATER = 0xC8   # material_color_list[0xC8], water fill
 # reaches above the horizon. Total = 1024 px wide.
 SLICES = [
     ("scen", 320, 48),
-    ("sce2", 192, 32),
-    ("sce3", 320, 44),
-    ("sce4", 192, 24),
+    ("sce2", 192, 48),
+    ("sce3", 320, 48),
+    ("sce4", 192, 48),
 ]
 PANORAMA_W = sum(w for _, w, _ in SLICES)
 PANORAMA_H = max(h for _, _, h in SLICES)
