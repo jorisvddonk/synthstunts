@@ -532,8 +532,10 @@ uint16_t cdecl run_intro_looped(void)
     if (!boot_parsed) {
         boot_parse_cmdline();
     }
-    // Fast-forward the intro when a CLI boot target was given.
-    if (boot_pending || boot_car_set || boot_track_set) {
+    // Fast-forward the intro when a CLI race/replay target was given. A car
+    // alone is not a target: it must not skip the intro or trigger a race
+    // boot with an unset track name.
+    if (boot_pending || boot_track_set) {
         return 0;
     }
     // Otherwise run the original intro (it auto-advances on its own).
@@ -551,9 +553,9 @@ int cdecl run_menu(void)
     if (boot_pending) {
         return 4; // -> option menu, where the replay is loaded
     }
-    if (boot_track_set || boot_car_set) {
-        // Apply the requested car and/or track once, then let the original
-        // menu fast-forward itself into "Let's Drive".
+    if (boot_track_set) {
+        // Apply the requested car/track once, then let the original menu
+        // fast-forward itself into "Let's Drive".
         boot_track_set = 0;
         if (boot_car_set) {
             boot_car_set = 0;
@@ -586,6 +588,14 @@ int cdecl run_menu(void)
             file_write_fatal_asm_("MENUVID.BIN", MK_FP(0xA000, 0), 64000UL);
         }
         return r;
+    }
+    if (boot_car_set) {
+        // Car without a track: keep the normal intro/menu flow, but preselect
+        // the car for when the player starts a race.
+        boot_car_set = 0;
+        for (k = 0; k < 4; k++) {
+            gameconfig.game_playercarid[k] = boot_car[k];
+        }
     }
     return run_menu_asm_();
 }
