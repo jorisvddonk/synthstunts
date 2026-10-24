@@ -163,17 +163,6 @@ bogus **segment-0** pointer and aborts the game here. Notes on the fix:
   derives an exact heading via `atan2(-vz, vx)` (finer than any fixed set of
   sectors); before the car first moves they carry the start heading
   `track_angle` (0=N, 0x100=E, 0x200=S, 0x300=W).
-- `/extmus` — publish `TITL` / `SLCT` to `MUS.TXT` for the browser's external
-  intro/menu soundtrack. Scene tags are **not** written at scene entry (that
-  corrupts game state and crashes). Set a pending tag in the C wrappers
-  (`run_intro_looped` → TITL, `run_menu` → SLCT) and flush it from a ported
-  `kb_get_char` (alias in `seg012.inc`/`.def`, remove from `aliases-port.lnk`);
-  `input_checking` polls it every intro/menu frame. Do **not** write anything
-  during the race (`run_game`): the host uses the first `POS.TXT` (`gamepos`)
-  to stop external music, and results use the original music. Do **not** touch
-  the game's audio state here: `audio_disable_flag2` (even with `sub_372F4`)
-  breaks SFX and crashes on collisions, and porting `file_load_audiores` breaks
-  SFX initialisation. The host mutes the emulator while an external cue plays.
 
 `run_game` is also routed through C to auto-save every finished race
 (`lastrep.rpl` + `lastrep.rp2` — see [RP2_FILE_FORMAT.md](RP2_FILE_FORMAT.md)).
