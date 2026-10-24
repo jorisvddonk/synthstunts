@@ -63,6 +63,9 @@ menus and boot straight into content. They are ignored by the pure-original
 | `/nNICK`  | Prefill the high-score name field with `NICK` (up to 16 chars).                       |
 | `/info`   | Verification mode: re-simulate the race/replay, then write `TIMING.TXT` (`total=…`, `penalty=…`, `fps=…`, `recorded=…` frame counts) and print it — to check a submission's timing against the game's own recomputation. |
 | `/pos`    | Live position: while a race runs, rewrite `POS.TXT` (`col row wx wy vx vz`, 0-29). `wx`/`wy` are continuous screen coordinates (256 per cell, `wx>>8==col`, `wy>>8==row`) for smooth plotting; `vx`/`vz` are the car's world velocity, so the exact heading is `atan2(-vz, vx)` — before the car moves they carry the start heading. Rewritten at most every 6 frames (the first write is immediate). |
+| `/synthwave` | Load `SYNT.PVS` from the game directory and keep the synthwave palette and horizon for the whole session (see below). |
+| `/dumppal` | Dev tool: write the active 256-colour palette (`!pal`) to `PALETTE.BIN` and exit. Combine with `/synthwave` to dump the applied synthwave palette instead. |
+| `/vid`    | Dev tool: after 120 simulation frames, dump one raw 320×200 mode-13h frame to `SCREEN.BIN`. |
 | `FILE`    | Boot into a replay, e.g. `FUN` or `FUN.RPL` (the first bare argument).                |
 
 Arguments can be combined and are case-insensitive (the `/n` nickname's case
@@ -84,6 +87,32 @@ display.
 
 See [PORTING_NOTES.md](PORTING_NOTES.md) for how these are wired into the port
 and [TIMING.md](TIMING.md) for the timing model and the `.rp2` format.
+
+### Synthwave mode (port-only)
+
+`/synthwave` swaps in `SYNT.PVS`, a normal single-pass RLE shape2d file in the
+game directory. It carries:
+
+* `!pal` — the replacement 768-byte (6-bit RGB) palette.
+* `scen`, `sce2`, `sce3`, `sce4` — four bottom-aligned skyline slices of one
+  1024-px panorama (widths 320/192/320/192, matching the skybox blitter's
+  `0x140/0x200/0x340` offsets). The five in-game scenery names are rewritten to
+  `synt.pvs` in place, so `dseg` does not grow.
+
+The palette is applied once at startup (the game only ever sets the DAC from
+`load_palandcursor`), so menus, previews and races all use it. The generator is
+`src/tools/synthwave/make_synt.py` (Pillow required):
+
+```sh
+# capture the game's own palette once (dev build with /dumppal)
+python3 src/tools/synthwave/make_synt.py build \
+    --palette PALETTE.BIN --out SYNT.PVS --preview-dir preview/
+```
+
+`--raw` writes the uncompressed container instead (`.DAT`, loaded through the
+loader's raw fallback). Low-saturation colours (asphalt, UI greys) are mapped
+onto a blue/violet ramp so the road becomes neon; `0x74` (sky), `0x6C` (ground)
+and `0xC8` (water) are forced so the flat fills match the panorama.
 
 ### Web demo
 

@@ -22,6 +22,15 @@ extern int16_t cdecl file_load_replay(const char* dir, const char* name);
 extern void cdecl file_write_fatal_asm_(const char* filename, void far* src, unsigned long len);
 // Memory manager (seg012): mmgr_alloc_resbytes is declared in externs.h.
 extern void far* cdecl mmgr_free_asm_(void far* data);
+// Shape loading + palette (resolved via aliases-port.lnk).
+extern void far* cdecl file_load_shape2d_nofatal_thunk(const char* filename);
+extern void cdecl video_set_palette(uint16_t start, uint16_t count, void near* table);
+// Original init_main (seg031), renamed with the _asm_ suffix.
+extern void cdecl init_main_asm_(int argc, char** argv);
+// Scenery file names (dseg, 5 entries x 9 bytes); patched in place so dseg
+// does not grow (growing it breaks audio).
+#pragma aux g_sceneries "*"
+extern uint8_t g_sceneries[];
 
 // Unported asm helpers, resolved via aliases-port.lnk.
 extern void cdecl file_build_path(const char* dir, const char* name, const char* ext, char* dst);
@@ -63,6 +72,11 @@ static int boot_track_set = 0;
 static int boot_car_set = 0;
 static int boot_pending = 0;
 static int boot_info = 0;
+// /synthwave: swap in SYNT.PVS (palette + skyline). /dumppal: one-time dump of
+// the game's own !pal to PALETTE.BIN (used to author the synthwave palette).
+static int boot_synthwave = 0;
+static int boot_dumppal = 0;
+static int boot_dumpvid = 0;
 static char boot_track[9];
 static char boot_car[4];
 static char boot_replay_name[9];
@@ -146,6 +160,34 @@ static void boot_parse_cmdline(void)
                 boot_pos = 1; // /pos: publish the car's map square to POS.TXT
                 continue;
             }
+            if ((n == 9) && (tok[0] == 's' || tok[0] == 'S') &&
+                (tok[1] == 'y' || tok[1] == 'Y') &&
+                (tok[2] == 'n' || tok[2] == 'N') &&
+                (tok[3] == 't' || tok[3] == 'T') &&
+                (tok[4] == 'h' || tok[4] == 'H') &&
+                (tok[5] == 'w' || tok[5] == 'W') &&
+                (tok[6] == 'a' || tok[6] == 'A') &&
+                (tok[7] == 'v' || tok[7] == 'V') &&
+                (tok[8] == 'e' || tok[8] == 'E')) {
+                boot_synthwave = 1; // /synthwave: load SYNT.PVS
+                continue;
+            }
+            if ((n == 3) && (tok[0] == 'v' || tok[0] == 'V') &&
+                (tok[1] == 'i' || tok[1] == 'I') &&
+                (tok[2] == 'd' || tok[2] == 'D')) {
+                boot_dumpvid = 1; // /vid: one-shot framebuffer dump (dev)
+                continue;
+            }
+            if ((n == 7) && (tok[0] == 'd' || tok[0] == 'D') &&
+                (tok[1] == 'u' || tok[1] == 'U') &&
+                (tok[2] == 'm' || tok[2] == 'M') &&
+                (tok[3] == 'p' || tok[3] == 'P') &&
+                (tok[4] == 'p' || tok[4] == 'P') &&
+                (tok[5] == 'a' || tok[5] == 'A') &&
+                (tok[6] == 'l' || tok[6] == 'L')) {
+                boot_dumppal = 1; // /dumppal: write PALETTE.BIN
+                continue;
+            }
             if (tok[0] == 'c' || tok[0] == 'C') {
                 if (n != 5) {
                     continue; // car id is exactly 4 chars
@@ -213,6 +255,109 @@ static void boot_parse_cmdline(void)
                 }
             }
         }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Synthwave mode (/synthwave)
+// ---------------------------------------------------------------------------
+// SYNT.PVS is a normal shape2d file holding the replacement palette (!pal)
+// and the four skyline slices used by load_skybox (scen/sce2/sce3/sce4).
+// Copy the 768-byte !pal resource (after the 16-byte SHAPE2D header) into a
+// caller-supplied buffer; video_set_palette() reads the table relative to DS,
+// so the buffer must be in DGROUP (init_main uses a stack buffer, like the
+// original load_palandcursor).
+static int boot_find_pal(void far* container, uint8_t near* dst)
+{
+    char far* shape;
+    char far* src;
+    uint8_t near* d;
+    uint16_t k;
+
+    if (container == 0) {
+        return 0;
+    }
+    shape = locate_shape_alt((const char far*)container, "!pal");
+    if (shape == 0) {
+        return 0;
+    }
+    src = shape + 0x10;
+    d = dst;
+    for (k = 0; k < 768; k++) {
+        *d++ = *src++;
+    }
+    return 1;
+}
+
+// Terminate the program (used only by the one-shot /dumppal dev tool).
+static void boot_quit(void);
+#pragma aux boot_quit = \
+    "mov ax, 04c00h" \
+    "int 021h" \
+    modify [ax];
+
+// Overwrite the five scenery names in place. Each entry is exactly 9 bytes
+// ("name\0" plus padding), so "synt.pvs" + NUL fits without growing dseg.
+static void boot_set_scenery_names(void)
+{
+    static const char name[9] = "synt.pvs";
+    uint16_t k, j;
+
+    for (k = 0; k < 5; k++) {
+        for (j = 0; j < 9; j++) {
+            g_sceneries[k * 9 + j] = (uint8_t)name[j];
+        }
+    }
+}
+
+// The original init_main treats any /s... argument as an audio driver, so
+// blank our flags in argv before it runs. (boot_parse_cmdline() reads the PSP
+// directly and is unaffected.)
+static void boot_strip_argv(int argc, char** argv)
+{
+    static char empty[1] = "";
+    uint16_t k;
+
+    for (k = 1; k < (uint16_t)argc; k++) {
+        char* a = argv[k];
+        if (a == 0 || a[0] != '/') {
+            continue;
+        }
+        if (_stricmp(a, "/synthwave") == 0 || _stricmp(a, "/dumppal") == 0
+            || _stricmp(a, "/vid") == 0) {
+            argv[k] = empty;
+        }
+    }
+}
+
+// Wrapper for init_main (seg031), called once at startup before the intro.
+// Doing the swap here keeps menus, previews and races consistent.
+void cdecl init_main(int argc, char** argv)
+{
+    uint8_t pal[768];
+
+    // The original init_main initialises the memory manager and clears the C
+    // runtime's BSS, so our flags must be parsed afterwards.
+    boot_strip_argv(argc, argv);
+    init_main_asm_(argc, argv);
+
+    boot_parse_cmdline();
+
+    if (boot_synthwave) {
+        boot_set_scenery_names();
+        if (boot_find_pal(file_load_shape2d_nofatal_thunk("synt.pvs"), pal)) {
+            video_set_palette(0, 256, pal);
+        }
+    }
+
+    if (boot_dumppal) {
+        // /dumppal alone captures the game's own palette; together with
+        // /synthwave it captures the palette that was just applied.
+        if (!boot_synthwave) {
+            boot_find_pal(file_load_shape2d_nofatal_thunk("sdmain"), pal);
+        }
+        file_write_fatal_asm_("PALETTE.BIN", (void far*)pal, 768UL);
+        boot_quit();
     }
 }
 
@@ -573,6 +718,14 @@ static void boot_publish_pos(void)
 // byte-faithful and no caller reads the return value.
 void cdecl update_gamestate(void)
 {
+    static uint16_t vid_frames = 0;
+    static uint8_t vid_done = 0;
+
     update_gamestate_asm_();
     boot_publish_pos();
+
+    if (boot_dumpvid && !vid_done && ++vid_frames >= 120) {
+        vid_done = 1;
+        file_write_fatal_asm_("SCREEN.BIN", MK_FP(0xA000, 0), 64000UL);
+    }
 }
