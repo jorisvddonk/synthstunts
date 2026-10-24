@@ -23,6 +23,10 @@ extern void cdecl file_write_fatal_asm_(const char* filename, void far* src, uns
 // Input poll (seg012). Wrapped so /extmus can publish a scene tag at a stable
 // point in the menu/intro loop instead of during a scene transition.
 extern uint16_t cdecl kb_get_char_asm_(void);
+// Music on/off, exactly what the Options -> Music Off item toggles (seg027).
+extern void cdecl audio_disable_flag2_asm_(void);
+#pragma aux audioflag2 "*";
+extern uint8_t audioflag2;
 // Memory manager (seg012): mmgr_alloc_resbytes is declared in externs.h.
 extern void far* cdecl mmgr_free_asm_(void far* data);
 // Shape loading + palette (resolved via aliases-port.lnk).
@@ -115,6 +119,7 @@ static char boot_pos_txt[40];
 // /extmus: pending scene tag, written from the input poll.
 static int boot_extmus = 0;
 static const char* boot_mus_pending = 0;
+static uint8_t boot_music_off = 0;
 static char boot_mus_txt[16];
 static char boot_mus_name[] = "MUS.TXT";
 static void boot_publish_mus(const char* tag);
@@ -960,6 +965,16 @@ static void boot_publish_mus(const char* tag)
 uint16_t cdecl kb_get_char(void)
 {
     uint16_t v = kb_get_char_asm_();
+
+    if (boot_extmus && !boot_music_off) {
+        // Same as Options -> Music Off: silence the in-game music but keep
+        // SFX. Do it from the input poll, not right after file_load_audiores
+        // (that leaves the driver half-initialised and crashes on SFX).
+        audio_disable_flag2_asm_();
+        if (audioflag2 == 0) {
+            boot_music_off = 1;
+        }
+    }
 
     if (boot_mus_pending != 0) {
         const char* tag = boot_mus_pending;

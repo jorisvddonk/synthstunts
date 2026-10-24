@@ -168,9 +168,11 @@ bogus **segment-0** pointer and aborts the game here. Notes on the fix:
   → TITL, `run_menu` → SLCT, `run_game` → NONE, and VICT/OVER after the race)
   and flush it from a ported `kb_get_char` (alias in `seg012.inc`/`.def`, remove
   from `aliases-port.lnk`). `input_checking` polls `kb_get_char` every intro,
-  menu and result frame, so the write happens once the scene is stable. Do not
-  port `file_load_audiores`: wrapping it breaks SFX (silent engine, crash on
-  the first collision).
+  menu and result frame, so the write happens once the scene is stable. On the
+  first poll, also call `audio_disable_flag2` — the same thing the Options →
+  Music Off item does — to silence the in-game music while keeping SFX. Do not
+  call it right after `file_load_audiores`: the driver is only half-initialised
+  there and the first SFX crashes. Do not port `file_load_audiores` itself.
 
 `run_game` is also routed through C to auto-save every finished race
 (`lastrep.rpl` + `lastrep.rp2` — see [RP2_FILE_FORMAT.md](RP2_FILE_FORMAT.md)).
