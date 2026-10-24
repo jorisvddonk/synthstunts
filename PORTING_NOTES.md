@@ -163,6 +163,14 @@ bogus **segment-0** pointer and aborts the game here. Notes on the fix:
   derives an exact heading via `atan2(-vz, vx)` (finer than any fixed set of
   sectors); before the car first moves they carry the start heading
   `track_angle` (0=N, 0x100=E, 0x200=S, 0x300=W).
+- `/extmus` — scene tags are **not** written at scene entry (that corrupts game
+  state and crashes). Set a pending tag in the C wrappers (`run_intro_looped`
+  → TITL, `run_menu` → SLCT, `run_game` → NONE, and VICT/OVER after the race)
+  and flush it from a ported `kb_get_char` (alias in `seg012.inc`/`.def`, remove
+  from `aliases-port.lnk`). `input_checking` polls `kb_get_char` every intro,
+  menu and result frame, so the write happens once the scene is stable. Do not
+  port `file_load_audiores`: wrapping it breaks SFX (silent engine, crash on
+  the first collision).
 
 `run_game` is also routed through C to auto-save every finished race
 (`lastrep.rpl` + `lastrep.rp2` — see [RP2_FILE_FORMAT.md](RP2_FILE_FORMAT.md)).
