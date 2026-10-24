@@ -67,6 +67,7 @@ menus and boot straight into content. They are ignored by the pure-original
 | `/dumppal` | Dev tool: write the active 256-colour palette (`!pal`) to `PALETTE.BIN` and exit. Combine with `/synthwave` to dump the applied synthwave palette instead. |
 | `/vid`    | Dev tool: dump raw 320×200 mode-13h frames to `SCREEN.BIN` (after 120 race frames) and `MENUVID.BIN` (the composed main menu). |
 | `/dumpmenu` | Dev tool: dump the main-menu background shape (`SDMSEL.PVS`'s `scrn`, or `SYNTM.PVS` with `/synthwave`) to `MENU.BIN` and exit. |
+| `/dumpdosel` | Dev tool: dump the opponent-select container (`SDOSEL.PVS`, or `SYNTO.PVS` with `/synthwave`) to `DOSEL.BIN` and exit. |
 | `FILE`    | Boot into a replay, e.g. `FUN` or `FUN.RPL` (the first bare argument).                |
 
 Arguments can be combined and are case-insensitive (the `/n` nickname's case
@@ -105,6 +106,13 @@ menu background; `aSdmsel` is rewritten from `sdmsel` to `syntm` in place. It
 is generated from the original menu image so the layout, car and signs stay
 identical — only the sky is redrawn (synthwave gradient + striped sun).
 
+`SYNTO.PVS` replaces the opponent-select file: `aSdosel` is rewritten from
+`sdosel` to `synto`. It carries the whole `SDOSEL.PVS` resource set (`scrn`,
+`clip`, the `!cg`/`!eg` colour maps) with the seven 80x83 opponent portraits
+restyled — their flat backgrounds become the same synthwave gradient with a
+sun halo. The dumped container is already in runtime layout, so the flip flags
+are cleared (otherwise the loader would unflip it a second time).
+
 The palette is applied once at startup (the game only ever sets the DAC from
 `load_palandcursor`), so menus, previews and races all use it. The generator is
 `src/tools/synthwave/make_synt.py` (Pillow required):
@@ -133,6 +141,14 @@ uv run src/tools/synthwave/bake_menu.py src/tools/synthwave/menu.png \
 RGB edits are quantised to `synthwave.pal`; indexed edits keep their exact
 indices. Copy the resulting `SYNTM.PVS` next to `REST2.EXE` (or into the web
 bundle).
+
+The opponent portraits use the same workflow: `REST2.EXE /dumpdosel` writes the
+`DOSEL.BIN` template, then edit `opp0.png`..`opp6.png` and bake:
+
+```sh
+uv run src/tools/synthwave/bake_opponents.py \
+    --template DOSEL.BIN --png-dir src/tools/synthwave -o SYNTO.PVS
+```
 
 `--raw` writes the uncompressed container instead (`.DAT`, loaded through the
 loader's raw fallback). Low-saturation colours (asphalt, UI greys) are mapped

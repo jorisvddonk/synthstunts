@@ -536,6 +536,89 @@ def cmd_menu(args):
     print(f"wrote {args.out}: {len(blob)} bytes ({len(container)} decoded)")
 
 
+
+
+# --------------------------------------------------------------------------
+# opponent portraits (SDOSEL.PVS opp0..opp6)
+# --------------------------------------------------------------------------
+OPP_BG_STOPS = [
+    (0, (8, 2, 26)),
+    (18, (26, 5, 44)),
+    (40, (46, 8, 46)),
+    (62, (58, 14, 34)),
+    (82, (60, 24, 18)),
+]
+
+
+def parse_container(data):
+    """Return {name: (shape_offset, width, height)} for a shape2d container."""
+    n = struct.unpack_from("<H", data, 4)[0]
+    base = 6 + n * 8
+    out = {}
+    for i in range(n):
+        name = data[6 + i * 4:10 + i * 4].decode("ascii", "replace")
+        off = struct.unpack_from("<I", data, 6 + n * 4 + i * 4)[0]
+        o = base + off
+        w, h = struct.unpack_from("<HH", data, o)
+        out[name] = (o, w, h)
+    return out
+
+
+def restyle_portrait(px, w, h, pal):
+    """Replace the flat portrait background with a synthwave backdrop."""
+    from collections import Counter
+    near = Nearest(pal)
+    bg = Counter(px).most_common(1)[0][0]
+    for y in range(h):
+        base = _gradient(y, OPP_BG_STOPS)
+        for x in range(w):
+            if px[y * w + x] != bg:
+                continue
+            col = base
+            dx, dy = x - 40, y - 34
+            if dx * dx + dy * dy <= 24 * 24 and (y % 4) != 0:
+                t = max(0.0, min(1.0, (y - 10) / 48.0))
+                col = _lerp((62, 52, 12), (60, 14, 30), t)
+            px[y * w + x] = near(col)
+    return px
+
+
+def palette_rows(pal):
+    out = []
+    for r, g, b in pal:
+        out += [r * 255 // 63, g * 255 // 63, b * 255 // 63]
+    return out
+
+
+def cmd_opponents(args):
+    pal = load_palette(args.palette)
+    new = transform_palette(pal, hue=args.hue, sat=args.sat, val=args.val,
+                            tint=args.tint)
+    data = bytearray(open(args.base, "rb").read())
+    res = parse_container(data)
+    # The dumped container is already in runtime (unflipped) layout. Clear the
+    # flip flags so file_unflip_shape2d() skips every shape instead of
+    # transforming the pixels a second time.
+    for o, _w, _h in res.values():
+        data[o + 14] = 0
+        data[o + 15] = 0
+    os.makedirs(args.png_dir, exist_ok=True)
+    for k in range(7):
+        name = f"opp{k}"
+        if name not in res:
+            raise SystemExit(f"{args.base}: missing resource {name}")
+        o, w, h = res[name]
+        px = list(data[o + 16:o + 16 + w * h])
+        px = restyle_portrait(px, w, h, new)
+        data[o + 16:o + 16 + w * h] = bytes(px)
+        im = Image.frombytes("P", (w, h), bytes(px))
+        im.putpalette(palette_rows(new))
+        im.save(os.path.join(args.png_dir, f"{name}.png"))
+    blob = rle_encode(bytes(data))
+    open(args.out, "wb").write(blob)
+    print(f"wrote {args.out}: {len(blob)} bytes ({len(data)} decoded)")
+
+
 def main():
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -573,12 +656,19 @@ def main():
     p.add_argument("--preview")
     p.set_defaults(func=cmd_menu)
 
+    p = sub.add_parser("opponents")
+    common(p)
+    p.add_argument("--base", required=True)
+    p.add_argument("--out", required=True)
+    p.add_argument("--png-dir", required=True)
+    p.set_defaults(func=cmd_opponents)
+
     p = sub.add_parser("check")
     p.add_argument("--file", required=True)
     p.set_defaults(func=cmd_check)
 
     args = ap.parse_args()
-    if Image is None and args.cmd in ("palette", "preview", "build", "menu"):
+    if Image is None and args.cmd in ("palette", "preview", "build", "menu", "opponents"):
         raise SystemExit("Pillow is required for this command")
     args.func(args)
 

@@ -25,6 +25,7 @@ extern void far* cdecl mmgr_free_asm_(void far* data);
 // Shape loading + palette (resolved via aliases-port.lnk).
 extern void far* cdecl file_load_shape2d_nofatal_thunk(const char* filename);
 extern void cdecl video_set_palette(uint16_t start, uint16_t count, void near* table);
+extern unsigned long cdecl mmgr_get_chunk_size_bytes(void far* data);
 // Original init_main (seg031), renamed with the _asm_ suffix.
 extern void cdecl init_main_asm_(int argc, char** argv);
 // Scenery file names (dseg, 5 entries x 9 bytes); patched in place so dseg
@@ -34,6 +35,9 @@ extern uint8_t g_sceneries[];
 // Main-menu background file (dseg, "sdmsel"); rewritten in place to "syntm".
 #pragma aux aSdmsel "*"
 extern char aSdmsel[];
+// Opponent-select file (dseg, "sdosel"); rewritten in place to "synto".
+#pragma aux aSdosel "*"
+extern char aSdosel[];
 
 // Unported asm helpers, resolved via aliases-port.lnk.
 extern void cdecl file_build_path(const char* dir, const char* name, const char* ext, char* dst);
@@ -81,6 +85,7 @@ static int boot_synthwave = 0;
 static int boot_dumppal = 0;
 static int boot_dumpvid = 0;
 static int boot_dumpmenu = 0;
+static int boot_dumpdosel = 0;
 static char boot_track[9];
 static char boot_car[4];
 static char boot_replay_name[9];
@@ -191,6 +196,18 @@ static void boot_parse_cmdline(void)
                 (tok[6] == 'n' || tok[6] == 'N') &&
                 (tok[7] == 'u' || tok[7] == 'U')) {
                 boot_dumpmenu = 1; // dev: dump SDMSEL.PVS "scrn"
+                continue;
+            }
+            if ((n == 9) && (tok[0] == 'd' || tok[0] == 'D') &&
+                (tok[1] == 'u' || tok[1] == 'U') &&
+                (tok[2] == 'm' || tok[2] == 'M') &&
+                (tok[3] == 'p' || tok[3] == 'P') &&
+                (tok[4] == 'd' || tok[4] == 'D') &&
+                (tok[5] == 'o' || tok[5] == 'O') &&
+                (tok[6] == 's' || tok[6] == 'S') &&
+                (tok[7] == 'e' || tok[7] == 'E') &&
+                (tok[8] == 'l' || tok[8] == 'L')) {
+                boot_dumpdosel = 1; // dev: dump SDOSEL.PVS
                 continue;
             }
             if ((n == 7) && (tok[0] == 'd' || tok[0] == 'D') &&
@@ -337,6 +354,19 @@ static void boot_set_menu_name(void)
     }
 }
 
+// Point the opponent-select loader at "synto" (SYNTO.PVS) instead of
+// "sdosel" (SDOSEL.PVS). It carries the same resources (scrn, clip, the
+// !cg/!eg maps) plus the seven opponent portraits.
+static void boot_set_opponent_name(void)
+{
+    static const char name[6] = "synto";
+    uint16_t k;
+
+    for (k = 0; k < 6; k++) {
+        aSdosel[k] = name[k];
+    }
+}
+
 // The original init_main treats any /s... argument as an audio driver, so
 // blank our flags in argv before it runs. (boot_parse_cmdline() reads the PSP
 // directly and is unaffected.)
@@ -373,9 +403,39 @@ void cdecl init_main(int argc, char** argv)
     if (boot_synthwave) {
         boot_set_scenery_names();
         boot_set_menu_name();
+        boot_set_opponent_name();
         if (boot_find_pal(file_load_shape2d_nofatal_thunk("synt.pvs"), pal)) {
             video_set_palette(0, 256, pal);
         }
+    }
+
+    if (boot_dumpdosel) {
+        void far* c = file_load_shape2d_nofatal_thunk(aSdosel);
+        if (c != 0) {
+            uint8_t far* b = (uint8_t far*)c;
+            uint16_t cnt = *(uint16_t far*)(b + 4);
+            uint32_t size = 0;
+            uint16_t i, j;
+            for (i = 0; i < cnt; i++) {
+                char nm[5];
+                char far* sh;
+                uint32_t off, end;
+                for (j = 0; j < 4; j++) nm[j] = (char)b[6 + i * 4 + j];
+                nm[4] = 0;
+                sh = locate_shape_alt((const char far*)c, nm);
+                off = (uint32_t)((uint8_t far*)sh - b);
+                end = off + 16UL +
+                      (uint32_t)(*(uint16_t far*)sh) *
+                      (uint32_t)(*(uint16_t far*)(sh + 2));
+                if (end > size) size = end;
+            }
+            {
+                unsigned long sz = mmgr_get_chunk_size_bytes(c);
+                if (sz < size) sz = size;
+                file_write_fatal_asm_("DOSEL.BIN", c, sz);
+            }
+        }
+        boot_quit();
     }
 
     if (boot_dumpmenu) {
