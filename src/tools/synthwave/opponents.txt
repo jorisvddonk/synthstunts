@@ -1,0 +1,120 @@
+# opp1
+initials: BR
+Squealin'
+Bernie Rubber
+
+Age: 23 Height: 5'4
+Years Experience: 2
+Expertise: None
+
+Problems: All
+
+Background: We've just about given
+    up on Bernie getting better.
+    He wants to be a stunt driver,
+    but doesn't have the skills, or
+    the respect of the other drivers
+    (he earned his nickname when
+    Skid Vicious held his head out
+    the window while driving the
+    slalom).
+
+# opp2
+initials: OP
+Herr Otto Partz
+
+
+Age: 52 Height: 5'10
+Years Experience: 28
+Expertise: Flat road
+
+Problems: Elevated roads,
+    aerial stunts.
+Background: After many years as
+    the premier European Formula
+    One driver, Herr Partz is now
+    driving the stunt tracks, but
+    is now handicapped by a
+    nervous fear of heights.
+
+# opp3
+initials: JS
+Smokin'
+Joe Stallin
+
+Age: 29 Height: 6'4
+Years Experience:N/A
+Expertise: Curves,
+    sharp corners
+Problems: Slow on straightaways
+
+Background: Little is known
+    about the roots of this
+    tactical driver. Speculation
+    is that he rear-ended another
+    car here on a straightaway
+    causing his current restraint
+    on these track areas.
+
+# opp4
+initials: CC
+Cherry Chassis
+
+
+Age: 24 Height: 5'5
+Years Experience: 8
+Expertise: High speed
+    on the straights
+Problems: Curves, sharp corners.
+
+Background: Started stunt driving
+    with the Porsche daddy got her
+    at 16. Her hobby is going out
+    to the desert and seeing how
+    long she can keep it floored
+    before she gets pulled over.
+    'Speed Thrills' is her motto
+    but she finds the corners,
+    like, dangerous.
+
+# opp5
+initials: HW
+Helen Wheels
+
+
+Age: 24 Height: 6'0
+Years Experience: 7
+Expertise: All
+
+Problems: Likes bumper cars.
+
+Background: She considers stunt
+    driving her calling. Her current
+    drawback may be caused by a
+    brief but enjoyable stint
+    driving demolition derbies.
+    Her sweet smile makes the
+    destructive behaviour more
+    suprising. Try to keep her
+    out of the expensive cars.
+
+# opp6
+initials: SV
+Skid Vicious
+
+
+Age: 34 Height: 6'0
+Years Experience: 20
+Expertise: All
+
+Problems: None
+
+Background: He learned the trade
+    outrunning cops in New York.
+    Age has mellowed his driving
+    habits, if not his person-
+    ality, so that he has become
+    the best driver at the proving
+    ground. It's best not to
+    actually speak with him.
+

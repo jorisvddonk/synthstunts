@@ -26,6 +26,7 @@ extern void far* cdecl mmgr_free_asm_(void far* data);
 extern void far* cdecl file_load_shape2d_nofatal_thunk(const char* filename);
 extern void cdecl video_set_palette(uint16_t start, uint16_t count, void near* table);
 extern unsigned long cdecl mmgr_get_chunk_size_bytes(void far* data);
+extern void far* cdecl file_load_resfile(const char* filename);
 // Original init_main (seg031), renamed with the _asm_ suffix.
 extern void cdecl init_main_asm_(int argc, char** argv);
 // Scenery file names (dseg, 5 entries x 9 bytes); patched in place so dseg
@@ -38,6 +39,9 @@ extern char aSdmsel[];
 // Opponent-select file (dseg, "sdosel"); rewritten in place to "synto".
 #pragma aux aSdosel "*"
 extern char aSdosel[];
+// Per-opponent resource file base name (dseg, "opp1"); prefix -> "syn".
+#pragma aux aOpp1 "*"
+extern char aOpp1[];
 
 // Unported asm helpers, resolved via aliases-port.lnk.
 extern void cdecl file_build_path(const char* dir, const char* name, const char* ext, char* dst);
@@ -86,6 +90,7 @@ static int boot_dumppal = 0;
 static int boot_dumpvid = 0;
 static int boot_dumpmenu = 0;
 static int boot_dumpdosel = 0;
+static int boot_dumpopp = 0;
 static char boot_track[9];
 static char boot_car[4];
 static char boot_replay_name[9];
@@ -208,6 +213,16 @@ static void boot_parse_cmdline(void)
                 (tok[7] == 'e' || tok[7] == 'E') &&
                 (tok[8] == 'l' || tok[8] == 'L')) {
                 boot_dumpdosel = 1; // dev: dump SDOSEL.PVS
+                continue;
+            }
+            if ((n == 7) && (tok[0] == 'd' || tok[0] == 'D') &&
+                (tok[1] == 'u' || tok[1] == 'U') &&
+                (tok[2] == 'm' || tok[2] == 'M') &&
+                (tok[3] == 'p' || tok[3] == 'P') &&
+                (tok[4] == 'o' || tok[4] == 'O') &&
+                (tok[5] == 'p' || tok[5] == 'P') &&
+                (tok[6] == 'p' || tok[6] == 'P')) {
+                boot_dumpopp = 1; // dev: dump opponent .PRE containers
                 continue;
             }
             if ((n == 7) && (tok[0] == 'd' || tok[0] == 'D') &&
@@ -367,6 +382,16 @@ static void boot_set_opponent_name(void)
     }
 }
 
+// Per-opponent resource files: "opp1".."opp6" -> "syn1".."syn6". The last
+// character is overwritten by the game with the opponent type, so only the
+// three-character prefix changes.
+static void boot_set_opponent_res_prefix(void)
+{
+    aOpp1[0] = 's';
+    aOpp1[1] = 'y';
+    aOpp1[2] = 'n';
+}
+
 // The original init_main treats any /s... argument as an audio driver, so
 // blank our flags in argv before it runs. (boot_parse_cmdline() reads the PSP
 // directly and is unaffected.)
@@ -404,9 +429,29 @@ void cdecl init_main(int argc, char** argv)
         boot_set_scenery_names();
         boot_set_menu_name();
         boot_set_opponent_name();
+        boot_set_opponent_res_prefix();
         if (boot_find_pal(file_load_shape2d_nofatal_thunk("synt.pvs"), pal)) {
             video_set_palette(0, 256, pal);
         }
+    }
+
+    if (boot_dumpopp) {
+        uint16_t i;
+        for (i = 0; i < 6; i++) {
+            void far* c;
+            aOpp1[3] = (char)('1' + i);
+            c = file_load_resfile(aOpp1);
+            if (c != 0) {
+                char fn[10] = "OPP1.BIN";
+                if (boot_synthwave) {
+                    fn[0] = 'S'; fn[1] = 'Y'; fn[2] = 'N';
+                }
+                fn[3] = (char)('1' + i);
+                file_write_fatal_asm_(fn, c,
+                    mmgr_get_chunk_size_bytes(c));
+            }
+        }
+        boot_quit();
     }
 
     if (boot_dumpdosel) {

@@ -68,6 +68,7 @@ menus and boot straight into content. They are ignored by the pure-original
 | `/vid`    | Dev tool: dump raw 320×200 mode-13h frames to `SCREEN.BIN` (after 120 race frames) and `MENUVID.BIN` (the composed main menu). |
 | `/dumpmenu` | Dev tool: dump the main-menu background shape (`SDMSEL.PVS`'s `scrn`, or `SYNTM.PVS` with `/synthwave`) to `MENU.BIN` and exit. |
 | `/dumpdosel` | Dev tool: dump the opponent-select container (`SDOSEL.PVS`, or `SYNTO.PVS` with `/synthwave`) to `DOSEL.BIN` and exit. |
+| `/dumpopp` | Dev tool: dump the decompressed per-opponent containers (`OPP1.BIN`..`OPP6.BIN`, or `SYN1.BIN`..`SYN6.BIN` with `/synthwave`) and exit. |
 | `FILE`    | Boot into a replay, e.g. `FUN` or `FUN.RPL` (the first bare argument).                |
 
 Arguments can be combined and are case-insensitive (the `/n` nickname's case
@@ -139,8 +140,8 @@ uv run src/tools/synthwave/bake_menu.py src/tools/synthwave/menu.png \
 ```
 
 RGB edits are quantised to `synthwave.pal`; indexed edits keep their exact
-indices. Copy the resulting `SYNTM.PVS` next to `REST2.EXE` (or into the web
-bundle).
+indices. Copy the resulting `SYNTM.PVS` next to `REST2.EXE` in the game
+directory.
 
 The opponent portraits use the same workflow: `REST2.EXE /dumpdosel` writes the
 `DOSEL.BIN` template, then edit `opp0.png`..`opp6.png` and bake:
@@ -148,6 +149,21 @@ The opponent portraits use the same workflow: `REST2.EXE /dumpdosel` writes the
 ```sh
 uv run src/tools/synthwave/bake_opponents.py \
     --template DOSEL.BIN --png-dir src/tools/synthwave -o SYNTO.PVS
+```
+
+Opponent descriptions/initials come from `SYN1.RES`..`SYN6.RES` in synthwave
+mode (`aOpp1`'s prefix is rewritten from `opp` to `syn`). Each file carries the
+original AI data (`path`/`sped`/`winn` and the win/lose dialogue) with only the
+menu description (`des`) and the two-letter initials (`nam`) replaced. The
+editable source is `src/tools/synthwave/opponents.txt`:
+
+```sh
+REST2.EXE /dumpopp      # writes OPP1.BIN..OPP6.BIN
+uv run src/tools/synthwave/bake_opponent_text.py --extract \
+    --template-dir . -o src/tools/synthwave/opponents.txt
+# edit opponents.txt, then:
+uv run src/tools/synthwave/bake_opponent_text.py \
+    --template-dir . --text src/tools/synthwave/opponents.txt --out-dir .
 ```
 
 `--raw` writes the uncompressed container instead (`.DAT`, loaded through the
