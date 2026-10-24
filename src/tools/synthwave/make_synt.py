@@ -458,6 +458,84 @@ def cmd_check(args):
     print("resources:", names)
 
 
+
+
+# --------------------------------------------------------------------------
+# main menu background (SDMSEL.PVS "scrn")
+# --------------------------------------------------------------------------
+# The menu loader does file_load_resource("sdmsel", 2) -> locate "scrn" ->
+# blit. In synthwave mode aSdmsel is rewritten to "syntm", so this file just
+# needs one 320x200 shape named "scrn" with the original header fields.
+MENU_SKY = set(range(128, 135))   # original blue sky gradient
+MENU_CLOUD = set(range(15, 25))   # original white/grey clouds
+
+MENU_SKY_STOPS = [
+    (0, (6, 2, 20)),      # top: deep indigo
+    (14, (14, 3, 32)),    # purple
+    (28, (30, 5, 44)),    # violet
+    (44, (46, 8, 46)),    # magenta
+    (58, (56, 12, 38)),   # pink
+    (72, (60, 20, 22)),   # orange glow
+    (95, (60, 30, 10)),   # horizon
+]
+
+
+def build_menu_image(base, pal):
+    """base = original scrn shape bytes (16-byte header + w*h pixels)."""
+    w, h = struct.unpack_from("<HH", base, 0)
+    header = base[:16]
+    px = list(base[16:16 + w * h])
+    near = Nearest(pal)
+
+    # Replace the blue sky with a synthwave gradient (keep clouds/mountains).
+    for y in range(h):
+        ci = near(_gradient(y, MENU_SKY_STOPS))
+        for x in range(w):
+            if px[y * w + x] in MENU_SKY:
+                px[y * w + x] = ci
+
+    # Striped sun over the open sky, left of the bridge.
+    cx, cy, r = 84, 34, 20
+    for y in range(max(0, cy - r), min(h, cy + r + 1)):
+        for x in range(max(0, cx - r), min(w, cx + r + 1)):
+            dx, dy = x - cx, y - cy
+            if dx * dx + dy * dy > r * r:
+                continue
+            o = base[16 + y * w + x]
+            if not (o in MENU_SKY or o in MENU_CLOUD):
+                continue
+            if (y - (cy - r)) % 3 == 0 and y < cy + 2:
+                continue
+            t = (y - (cy - r)) / float(2 * r)
+            px[y * w + x] = near(_lerp((62, 52, 12), (60, 18, 28), t))
+
+    return header + bytes(px)
+
+
+def cmd_menu(args):
+    pal = load_palette(args.palette)
+    new = transform_palette(pal, hue=args.hue, sat=args.sat, val=args.val,
+                            tint=args.tint)
+    base = open(args.base, "rb").read()
+    shape = build_menu_image(base, new)
+    w, h = struct.unpack_from("<HH", shape, 0)
+    container = build_container([("scrn", shape)])
+    blob = rle_encode(container)
+    open(args.out, "wb").write(blob)
+    if args.preview:
+        im = Image.new("RGB", (w, h))
+        im.frombytes("P", shape[16:16 + w * h]) if False else None
+        im = Image.frombytes("P", (w, h), shape[16:16 + w * h])
+        p8 = []
+        for i in range(256):
+            rr, gg, bb = new[i]
+            p8 += [rr * 255 // 63, gg * 255 // 63, bb * 255 // 63]
+        im.putpalette(p8)
+        im.convert("RGB").resize((w * 2, h * 2),
+                                 Image.NEAREST).save(args.preview)
+    print(f"wrote {args.out}: {len(blob)} bytes ({len(container)} decoded)")
+
+
 def main():
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -488,12 +566,19 @@ def main():
                    help="write the uncompressed container (.DAT)")
     p.set_defaults(func=cmd_build)
 
+    p = sub.add_parser("menu")
+    common(p)
+    p.add_argument("--base", required=True)
+    p.add_argument("--out", required=True)
+    p.add_argument("--preview")
+    p.set_defaults(func=cmd_menu)
+
     p = sub.add_parser("check")
     p.add_argument("--file", required=True)
     p.set_defaults(func=cmd_check)
 
     args = ap.parse_args()
-    if Image is None and args.cmd in ("palette", "preview", "build"):
+    if Image is None and args.cmd in ("palette", "preview", "build", "menu"):
         raise SystemExit("Pillow is required for this command")
     args.func(args)
 

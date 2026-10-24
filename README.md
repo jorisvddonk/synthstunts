@@ -65,7 +65,8 @@ menus and boot straight into content. They are ignored by the pure-original
 | `/pos`    | Live position: while a race runs, rewrite `POS.TXT` (`col row wx wy vx vz`, 0-29). `wx`/`wy` are continuous screen coordinates (256 per cell, `wx>>8==col`, `wy>>8==row`) for smooth plotting; `vx`/`vz` are the car's world velocity, so the exact heading is `atan2(-vz, vx)` — before the car moves they carry the start heading. Rewritten at most every 6 frames (the first write is immediate). |
 | `/synthwave` | Load `SYNT.PVS` from the game directory and keep the synthwave palette and horizon for the whole session (see below). |
 | `/dumppal` | Dev tool: write the active 256-colour palette (`!pal`) to `PALETTE.BIN` and exit. Combine with `/synthwave` to dump the applied synthwave palette instead. |
-| `/vid`    | Dev tool: after 120 simulation frames, dump one raw 320×200 mode-13h frame to `SCREEN.BIN`. |
+| `/vid`    | Dev tool: dump raw 320×200 mode-13h frames to `SCREEN.BIN` (after 120 race frames) and `MENUVID.BIN` (the composed main menu). |
+| `/dumpmenu` | Dev tool: dump the main-menu background shape (`SDMSEL.PVS`'s `scrn`, or `SYNTM.PVS` with `/synthwave`) to `MENU.BIN` and exit. |
 | `FILE`    | Boot into a replay, e.g. `FUN` or `FUN.RPL` (the first bare argument).                |
 
 Arguments can be combined and are case-insensitive (the `/n` nickname's case
@@ -99,6 +100,11 @@ game directory. It carries:
   `0x140/0x200/0x340` offsets). The five in-game scenery names are rewritten to
   `synt.pvs` in place, so `dseg` does not grow.
 
+`SYNTM.PVS` (a second shape2d file with one `scrn` shape) replaces the main
+menu background; `aSdmsel` is rewritten from `sdmsel` to `syntm` in place. It
+is generated from the original menu image so the layout, car and signs stay
+identical — only the sky is redrawn (synthwave gradient + striped sun).
+
 The palette is applied once at startup (the game only ever sets the DAC from
 `load_palandcursor`), so menus, previews and races all use it. The generator is
 `src/tools/synthwave/make_synt.py` (Pillow required):
@@ -107,6 +113,11 @@ The palette is applied once at startup (the game only ever sets the DAC from
 # capture the game's own palette once (dev build with /dumppal)
 python3 src/tools/synthwave/make_synt.py build \
     --palette PALETTE.BIN --out SYNT.PVS --preview-dir preview/
+
+# capture the original menu background once (dev build with /dumpmenu),
+# then replace its sky
+python3 src/tools/synthwave/make_synt.py menu \
+    --palette PALETTE.BIN --base MENU.BIN --out SYNTM.PVS --preview menu.png
 ```
 
 `--raw` writes the uncompressed container instead (`.DAT`, loaded through the

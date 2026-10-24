@@ -31,6 +31,9 @@ extern void cdecl init_main_asm_(int argc, char** argv);
 // does not grow (growing it breaks audio).
 #pragma aux g_sceneries "*"
 extern uint8_t g_sceneries[];
+// Main-menu background file (dseg, "sdmsel"); rewritten in place to "syntm".
+#pragma aux aSdmsel "*"
+extern char aSdmsel[];
 
 // Unported asm helpers, resolved via aliases-port.lnk.
 extern void cdecl file_build_path(const char* dir, const char* name, const char* ext, char* dst);
@@ -77,6 +80,7 @@ static int boot_info = 0;
 static int boot_synthwave = 0;
 static int boot_dumppal = 0;
 static int boot_dumpvid = 0;
+static int boot_dumpmenu = 0;
 static char boot_track[9];
 static char boot_car[4];
 static char boot_replay_name[9];
@@ -176,6 +180,17 @@ static void boot_parse_cmdline(void)
                 (tok[1] == 'i' || tok[1] == 'I') &&
                 (tok[2] == 'd' || tok[2] == 'D')) {
                 boot_dumpvid = 1; // /vid: one-shot framebuffer dump (dev)
+                continue;
+            }
+            if ((n == 8) && (tok[0] == 'd' || tok[0] == 'D') &&
+                (tok[1] == 'u' || tok[1] == 'U') &&
+                (tok[2] == 'm' || tok[2] == 'M') &&
+                (tok[3] == 'p' || tok[3] == 'P') &&
+                (tok[4] == 'm' || tok[4] == 'M') &&
+                (tok[5] == 'e' || tok[5] == 'E') &&
+                (tok[6] == 'n' || tok[6] == 'N') &&
+                (tok[7] == 'u' || tok[7] == 'U')) {
+                boot_dumpmenu = 1; // dev: dump SDMSEL.PVS "scrn"
                 continue;
             }
             if ((n == 7) && (tok[0] == 'd' || tok[0] == 'D') &&
@@ -310,6 +325,18 @@ static void boot_set_scenery_names(void)
     }
 }
 
+// Point the menu background loader at "syntm" (SYNTM.PVS) instead of
+// "sdmsel" (SDMSEL.PVS). Both are shape2d files with a "scrn" resource.
+static void boot_set_menu_name(void)
+{
+    static const char name[6] = "syntm";
+    uint16_t k;
+
+    for (k = 0; k < 6; k++) {
+        aSdmsel[k] = name[k];
+    }
+}
+
 // The original init_main treats any /s... argument as an audio driver, so
 // blank our flags in argv before it runs. (boot_parse_cmdline() reads the PSP
 // directly and is unaffected.)
@@ -345,9 +372,22 @@ void cdecl init_main(int argc, char** argv)
 
     if (boot_synthwave) {
         boot_set_scenery_names();
+        boot_set_menu_name();
         if (boot_find_pal(file_load_shape2d_nofatal_thunk("synt.pvs"), pal)) {
             video_set_palette(0, 256, pal);
         }
+    }
+
+    if (boot_dumpmenu) {
+        void far* c = file_load_shape2d_nofatal_thunk(aSdmsel);
+        if (c != 0) {
+            char far* sh = locate_shape_alt((const char far*)c, "scrn");
+            if (sh != 0) {
+                file_write_fatal_asm_("MENU.BIN", (void far*)sh,
+                                      16UL + 64000UL);
+            }
+        }
+        boot_quit();
     }
 
     if (boot_dumppal) {
@@ -416,6 +456,9 @@ int cdecl run_menu(void)
         idle_expired = 1;
         r = run_menu_asm_();
         idle_expired = 0;
+        if (boot_dumpvid) {
+            file_write_fatal_asm_("MENUVID.BIN", MK_FP(0xA000, 0), 64000UL);
+        }
         return r;
     }
     return run_menu_asm_();
