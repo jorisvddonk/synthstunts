@@ -91,6 +91,7 @@ static int boot_dumpvid = 0;
 static int boot_dumpmenu = 0;
 static int boot_dumpdosel = 0;
 static int boot_dumpopp = 0;
+static int boot_dumpmisc = 0;
 static char boot_track[9];
 static char boot_car[4];
 static char boot_replay_name[9];
@@ -213,6 +214,17 @@ static void boot_parse_cmdline(void)
                 (tok[7] == 'e' || tok[7] == 'E') &&
                 (tok[8] == 'l' || tok[8] == 'L')) {
                 boot_dumpdosel = 1; // dev: dump SDOSEL.PVS
+                continue;
+            }
+            if ((n == 8) && (tok[0] == 'd' || tok[0] == 'D') &&
+                (tok[1] == 'u' || tok[1] == 'U') &&
+                (tok[2] == 'm' || tok[2] == 'M') &&
+                (tok[3] == 'p' || tok[3] == 'P') &&
+                (tok[4] == 'm' || tok[4] == 'M') &&
+                (tok[5] == 'i' || tok[5] == 'I') &&
+                (tok[6] == 's' || tok[6] == 'S') &&
+                (tok[7] == 'c' || tok[7] == 'C')) {
+                boot_dumpmisc = 1; // dev: dump the MISC resfile
                 continue;
             }
             if ((n == 7) && (tok[0] == 'd' || tok[0] == 'D') &&
@@ -433,6 +445,15 @@ void cdecl init_main(int argc, char** argv)
         if (boot_find_pal(file_load_shape2d_nofatal_thunk("synt.pvs"), pal)) {
             video_set_palette(0, 256, pal);
         }
+    }
+
+    if (boot_dumpmisc) {
+        void far* c = file_load_resfile("misc");
+        if (c != 0) {
+            file_write_fatal_asm_("MISC.BIN", c,
+                mmgr_get_chunk_size_bytes(c));
+        }
+        boot_quit();
     }
 
     if (boot_dumpopp) {

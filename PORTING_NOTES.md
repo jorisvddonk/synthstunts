@@ -200,6 +200,9 @@ audio (see the `dseg` section).
   `<name>.PRE` (decompressed). Shipping raw `SYN<n>.RES` avoids needing a
   compressor. The game overwrites `aOpp1[3]` with the opponent type before each
   load, so only `aOpp1[0..2]` changes.
+- The same `.RES`-over-`.PRE` rule applies to `MISC`: a raw `MISC.RES` carries
+  the rebranded `gstu` ("SynthStunts") and `gver` strings and is loaded in
+  every mode. `/dumpmisc` writes the decompressed container for editing.
 - An opponent container's menu description is the `des` text resource
   (`]` separates lines); the two-letter initials are the first NUL-terminated
   string in `nam` (`g_opponent_initials` is a word). In OPP3..OPP6 `des`

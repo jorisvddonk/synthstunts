@@ -69,6 +69,7 @@ menus and boot straight into content. They are ignored by the pure-original
 | `/dumpmenu` | Dev tool: dump the main-menu background shape (`SDMSEL.PVS`'s `scrn`, or `SYNTM.PVS` with `/synthwave`) to `MENU.BIN` and exit. |
 | `/dumpdosel` | Dev tool: dump the opponent-select container (`SDOSEL.PVS`, or `SYNTO.PVS` with `/synthwave`) to `DOSEL.BIN` and exit. |
 | `/dumpopp` | Dev tool: dump the decompressed per-opponent containers (`OPP1.BIN`..`OPP6.BIN`, or `SYN1.BIN`..`SYN6.BIN` with `/synthwave`) and exit. |
+| `/dumpmisc` | Dev tool: dump the decompressed `MISC` resource container to `MISC.BIN` and exit. |
 | `FILE`    | Boot into a replay, e.g. `FUN` or `FUN.RPL` (the first bare argument).                |
 
 Arguments can be combined and are case-insensitive (the `/n` nickname's case
@@ -113,6 +114,11 @@ identical — only the sky is redrawn (synthwave gradient + striped sun).
 restyled — their flat backgrounds become the same synthwave gradient with a
 sun halo. The dumped container is already in runtime layout, so the flip flags
 are cleared (otherwise the loader would unflip it a second time).
+
+The options screen text is replaced by a raw `MISC.RES` override (the resfile
+loader prefers `.RES` over the game's `MISC.PRE`), so it reads **SynthStunts**
+and **Version 1.1.1 (Oct 24 2026)** in every mode. Use `/dumpmisc` if you need
+the template.
 
 The palette is applied once at startup (the game only ever sets the DAC from
 `load_palandcursor`), so menus, previews and races all use it. The generator is
