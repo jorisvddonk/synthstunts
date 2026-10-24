@@ -1,120 +1,99 @@
 # opp1
-initials: BR
-Squealin'
-Bernie Rubber
+initials: NV
+Neon Vixen
 
-Age: 23 Height: 5'4
-Years Experience: 2
-Expertise: None
+Age: 24 Height: 5'8
+Years Experience: 6
+Expertise: Neon hairpins
+Problems: Daylight, chrome glare
 
-Problems: All
-
-Background: We've just about given
-    up on Bernie getting better.
-    He wants to be a stunt driver,
-    but doesn't have the skills, or
-    the respect of the other drivers
-    (he earned his nickname when
-    Skid Vicious held his head out
-    the window while driving the
-    slalom).
-
+Background: Grew up chasing
+    sunsets on the coastal
+    strip. Drives by the glow
+    of her own dashboard and
+    never lifts for the
+    hairpins. Her paint job is
+    technically a traffic
+    hazard.
 # opp2
-initials: OP
-Herr Otto Partz
+initials: CM
+Chrome Mirage
 
+Age: 31 Height: 6'0
+Years Experience: 12
+Expertise: Long straights
+Problems: Rain, fingerprints
 
-Age: 52 Height: 5'10
-Years Experience: 28
-Expertise: Flat road
-
-Problems: Elevated roads,
-    aerial stunts.
-Background: After many years as
-    the premier European Formula
-    One driver, Herr Partz is now
-    driving the stunt tracks, but
-    is now handicapped by a
-    nervous fear of heights.
-
+Background: A former arcade
+    champion who claims he once
+    lapped the grid in a dream.
+    Nobody has proved otherwise.
+    His chrome finish confuses
+    the photographers and the
+    opposition alike.
 # opp3
-initials: JS
-Smokin'
-Joe Stallin
+initials: MG
+Magenta Ghost
 
-Age: 29 Height: 6'4
-Years Experience:N/A
-Expertise: Curves,
-    sharp corners
-Problems: Slow on straightaways
+Age: Unknown Height: 5'11
+Years Experience: N/A
+Expertise: Night tracks
+Problems: Mirrors, sunlight
 
-Background: Little is known
-    about the roots of this
-    tactical driver. Speculation
-    is that he rear-ended another
-    car here on a straightaway
-    causing his current restraint
-    on these track areas.
-
+Background: Appears in the
+    rear-view only after the
+    race is lost. Runs a
+    modified tape deck instead
+    of an engine management
+    system. Nobody has seen the
+    driver step out of the car.
 # opp4
-initials: CC
-Cherry Chassis
+initials: LD
+Laser Dancer
 
+Age: 27 Height: 5'6
+Years Experience: 9
+Expertise: Chicanes,
+    synchronized slides
+Problems: Straight lines,
+    early mornings
 
-Age: 24 Height: 5'5
-Years Experience: 8
-Expertise: High speed
-    on the straights
-Problems: Curves, sharp corners.
-
-Background: Started stunt driving
-    with the Porsche daddy got her
-    at 16. Her hobby is going out
-    to the desert and seeing how
-    long she can keep it floored
-    before she gets pulled over.
-    'Speed Thrills' is her motto
-    but she finds the corners,
-    like, dangerous.
-
+Background: Trained as a stage
+    performer before discovering
+    the track. Treats every
+    corner as a cue and every
+    lap as a set. The tyre smoke
+    is part of the show.
 # opp5
-initials: HW
-Helen Wheels
+initials: VV
+Vaporwave Vandal
 
+Age: 22 Height: 5'9
+Years Experience: 3
+Expertise: Retro chic
+Problems: Modern brakes,
+    deadlines
 
-Age: 24 Height: 6'0
-Years Experience: 7
-Expertise: All
-
-Problems: Likes bumper cars.
-
-Background: She considers stunt
-    driving her calling. Her current
-    drawback may be caused by a
-    brief but enjoyable stint
-    driving demolition derbies.
-    Her sweet smile makes the
-    destructive behaviour more
-    suprising. Try to keep her
-    out of the expensive cars.
-
+Background: Raced a
+    cassette-fuelled hatchback
+    until the tape snapped. Now
+    drives everything at 0.8x
+    speed and somehow still
+    arrives first. The aesthetic
+    is the point.
 # opp6
-initials: SV
-Skid Vicious
+initials: TS
+Turbo Spectre
 
-
-Age: 34 Height: 6'0
+Age: 38 Height: 6'2
 Years Experience: 20
 Expertise: All
-
 Problems: None
 
-Background: He learned the trade
-    outrunning cops in New York.
-    Age has mellowed his driving
-    habits, if not his person-
-    ality, so that he has become
-    the best driver at the proving
-    ground. It's best not to
-    actually speak with him.
-
+Background: The old ghost of
+    the proving ground. Ran the
+    neon circuit before it had a
+    name and still holds the lap
+    nobody can find in the record
+    books. Speaks only in
+    reverb.
