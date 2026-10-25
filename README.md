@@ -17,19 +17,24 @@ executables keep their upstream names (`restunts.exe`, `restunto.exe`, ...).
 ReStunts refurbishes the [Stunts reverse engineering project](https://github.com/4d-stunts/restunts)
 with free, contemporary tooling and measures to improve correctness of the ported code.
 
-## Progress
+## Features beyond the original
 
-- [X] Convert IDA database to Ghidra.
-- [X] Set up Ghidra Server for collaborative analysis.
-- [X] Ghidra script to generate Watcom Assembler code.
-- [X] Recreate working, debuggable game executable with Watcom Linker.
-- [X] Build-time override functions ported to C.
-- [ ] Import C functions from the original [restunts](https://github.com/4d-stunts/restunts) project, switch to [fixed-width integers](https://en.wikipedia.org/wiki/C_data_types#Fixed-width_integer_types) and add [unit tests](https://en.wikipedia.org/wiki/Unit_testing).
-- [X] Enforce consistent coding style with *clang-format*.
-- [X] Continuous integration for all targets.
-- [ ] Find a clean solution for improving the game and adding modern platforms while preserving original behaviour with minimal code duplication or `#ifdef` spaghetti.
-- [ ] Find a lossless, text-based format for backing up the Ghidra analysis database in git.
-- [ ] Synchronise analysis with other versions of Stunts and 4D [Sports] Driving.
+- **Synthwave presentation** — alternate palette, neon skyline horizon, redrawn
+  main menu, restyled opponent portraits/descriptions and a rebranded options
+  screen (`/synthwave`).
+- **Command-line boot options** — start a race on a chosen track and car,
+  prefill the high-score name, or load a replay directly (`/t`, `/c`, `/n`).
+- **Timing verification** (`/info`) — re-simulates a race or replay and writes
+  `TIMING.TXT` to compare a submission against the game's own recomputation.
+- **Live telemetry** (`/pos`) — writes position and velocity to `POS.TXT` while
+  racing for overlays and external tooling.
+- **Track menu top-3 high scores** — the track viewer lists the best three times
+  per track instead of only the single best time.
+- **Automatic replay archiving** — every finished race is saved as `lastrep.rpl`
+  and `lastrep.rp2`, the latter carrying a timing trailer.
+- **External soundtrack support** (`/extmus`) — keeps the in-game music off while
+  sound effects keep playing.
+- **Web demo** — per-track, per-car and per-replay js-dos bundles in `web/`.
 
 ## Building
 
