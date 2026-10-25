@@ -2,7 +2,7 @@
 
    <h1>SynthStunts</h1>
 
-   ![SynthStunts](assets/logo.svg)
+   ![SynthStunts](assets/logo.png)
 
    [![Build](https://img.shields.io/github/check-runs/dstien/restunts2/main?nameFilter=Build&label=Build)](https://github.com/dstien/restunts2/actions)
    [![Tests](https://img.shields.io/github/check-runs/dstien/restunts2/main?nameFilter=Test&label=Tests)](https://github.com/dstien/restunts2/actions)
